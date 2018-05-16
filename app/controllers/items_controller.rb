@@ -4,13 +4,14 @@ class ItemsController < ApplicationController
   def show
     @item = Item.find(params[:id])
     @want_users = @item.want_users
+    @have_users = @item.have_users
   end
 
   def new
     @items = []
 
     @keyword = params[:keyword]
-    if @keyword
+    if @keyword.present?
       results = RakutenWebService::Ichiba::Item.search({
         keyword: @keyword,
         imageFlag: 1,
@@ -22,5 +23,10 @@ class ItemsController < ApplicationController
         @items << item
       end
     end
+    
+  #例外処理(検索キーワードの楽天仕様でのエラー回避)
+  rescue => e
+    flash[:danger] = '検索結果が存在しません'
   end
+  
 end
